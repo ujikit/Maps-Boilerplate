@@ -10,6 +10,8 @@ target 'MapsBoilerplate' do
 
   pod 'RNCMaskedView', :path => '../node_modules/@react-native-community/masked-view'
 
+  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+
   pod 'RNGestureHandler', :path => '../node_modules/react-native-gesture-handler'
 
   pod 'react-native-safe-area-context', :path => '../node_modules/react-native-safe-area-context'
