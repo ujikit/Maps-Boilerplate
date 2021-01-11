@@ -7,6 +7,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import {Root, Container} from 'native-base';
 
 // screens
+import Home from './src/screens/Home';
 import TestMap from './src/screens/TestMap';
 
 const Stack = createStackNavigator();
@@ -19,11 +20,18 @@ function App() {
           barStyle="dark-content"
           />
         <NavigationContainer>
-          <Stack.Navigator initialRouteName="TestMap">
+          <Stack.Navigator initialRouteName="Home">
+            <Stack.Screen
+              name="Home"
+              component={Home}
+              options={{
+                headerShown: false
+              }}
+            />
             <Stack.Screen
               name="TestMap"
               component={TestMap}
-              />
+            />
           </Stack.Navigator>
         </NavigationContainer>
       </View>
