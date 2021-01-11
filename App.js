@@ -8,6 +8,7 @@ import {Root, Container} from 'native-base';
 
 // screens
 import Home from './src/screens/Home';
+import Destination from './src/screens/Destination';
 import TestMap from './src/screens/TestMap';
 
 const Stack = createStackNavigator();
@@ -24,6 +25,13 @@ function App() {
             <Stack.Screen
               name="Home"
               component={Home}
+              options={{
+                headerShown: false
+              }}
+            />
+            <Stack.Screen
+              name="Destination"
+              component={Destination}
               options={{
                 headerShown: false
               }}
