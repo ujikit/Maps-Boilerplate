@@ -10,7 +10,7 @@ import {Root, Container} from 'native-base';
 // screens
 import Home from './src/screens/Home';
 import Destination from './src/screens/Destination';
-import TestMap from './src/screens/TestMap';
+import ChooseLocation from './src/screens/ChooseLocation';
 // config
 import {store} from './src/states/store/store';
 
@@ -32,18 +32,21 @@ function App() {
                 options={{
                   headerShown: false
                 }}
-                />
+              />
               <Stack.Screen
                 name="Destination"
                 component={Destination}
                 options={{
                   headerShown: false
                 }}
-                />
+              />
               <Stack.Screen
-                name="TestMap"
-                component={TestMap}
-                />
+                name="ChooseLocation"
+                component={ChooseLocation}
+                options={{
+                  headerShown: false
+                }}
+              />
             </Stack.Navigator>
           </NavigationContainer>
         </View>
