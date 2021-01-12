@@ -1,11 +1,30 @@
-import React, { useState } from "react";
-import { FlatList, StyleSheet, Image, Dimensions, TextInput, Platform, ScrollView, TouchableOpacity, Modal, Alert } from 'react-native'
-import { Container, Card, Footer, Text, Thumbnail, Content, View, Button, Header, Icon } from 'native-base'
+import React, {useEffect} from 'react';
+import {
+  Image,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import {
+  Container,
+} from 'native-base';
+import Geolocation from '@react-native-community/geolocation';
+import {connect, useDispatch} from 'react-redux';
+
+// redux actions
+import {userCurrentLocationDispatch} from '../states/actions/global_all_action'
 
 function HomeScreen ({
   route,
   navigation,
 }) {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    Geolocation.getCurrentPosition((info) => {
+      let {coords} = info;
+      dispatch(userCurrentLocationDispatch(coords));
+    });
+  }, []);
 
   return (
     <Container>
