@@ -10,6 +10,7 @@ import {
   Shine,
   ShineOverlay,
 } from 'rn-placeholder'
+import {connect, useDispatch} from 'react-redux';
 
 // components
 import FormInput from '../components/FormInput'
@@ -24,6 +25,7 @@ function DestinationScreen ({
   route,
   navigation,
 }) {
+  const dispatch = useDispatch();
   const ref_autocomplete = useRef(null);
 
   let [is_fetching_location, setIsFetchingLocation] = useState(false);
@@ -45,12 +47,27 @@ function DestinationScreen ({
 
   }, [])
 
-  _handleTypeLocation = (current_location) => {
+  _handleTypeCurrentLocation = (current_location) => {
     setCurrentLocation(current_location);
-    setIsFetchingLocation(true);
+    if (!current_location) {
+      return setLocationFound([])
+    }
     clearInterval(ref_autocomplete.current);
+    _handleGetGeocodeAPI(current_location)
+  }
 
-    let parse_current_location = current_location.replace(/\s/g, '+')
+  _handleTypeDestinationLocation = (destination_location) => {
+    setDestinationLocation(destination_location);
+    if (!destination_location) {
+      return setLocationFound([])
+    }
+    clearInterval(ref_autocomplete.current);
+    _handleGetGeocodeAPI(destination_location)
+  }
+
+  _handleGetGeocodeAPI = (location) => {
+    let parse_current_location = location.replace(/\s/g, '+')
+    setIsFetchingLocation(true);
     ref_autocomplete.current = setTimeout(async () => {
       fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${parse_current_location}&key=${GOOGLE_API_KEY}`)
         .then(async response_geocoding => {
@@ -75,6 +92,13 @@ function DestinationScreen ({
     }, 1500)
   }
 
+  _handlePickLocation = () => {
+    setTimeout(() => {
+      setCurrentLocation('')
+      setDestinationLocation('')
+      setLocationFound([])
+    }, 1500)
+  }
 
   return (
     <Container>
@@ -92,7 +116,7 @@ function DestinationScreen ({
           <FormInput
             placeholder="Your current location"
             value={current_location}
-            setState={_handleTypeLocation}
+            setState={_handleTypeCurrentLocation}
           />
           </View>
           <Line height={2} margin_left={32}/>
@@ -105,7 +129,7 @@ function DestinationScreen ({
             <FormInput
               placeholder="Search for a destination"
               value={destination_location}
-              setState={setDestinationLocation}
+              setState={_handleTypeDestinationLocation}
             />
           </View>
         </View>
@@ -132,7 +156,7 @@ function DestinationScreen ({
         </View>
         <View style={{flex: 1, marginTop: current_location || destination_location || location_found.length ? 0 : 20, paddingHorizontal: location_found.length ? 0 : PADDING_HORIZONTAL}}>
           {
-            location_found.length ?
+            !is_fetching_location && current_location || destination_location && location_found.length ?
               (<FlatList
                 data={location_found}
                 showsVerticalScrollIndicator={false}
@@ -141,7 +165,7 @@ function DestinationScreen ({
                 onEndReachedThreshold={0.5}
                 renderItem={({ item }) => {
                   return (
-                    <TouchableOpacity style={{height: 90}}>
+                    <TouchableOpacity onPress={()=> _handlePickLocation()} style={{height: 90}}>
                       <View style={{flexDirection: 'row', paddingVertical: 15}}>
                         <View style={{width: 40, alignItems: 'center'}}>
                           <Icon type="FontAwesome5" name="map-marker-alt" style={{ color: 'rgb(199, 197, 197)', fontSize: 23 }} />
@@ -202,4 +226,4 @@ function DestinationScreen ({
   )
 }
 
-export default DestinationScreen;
+export default connect(state => ({}))(DestinationScreen);
