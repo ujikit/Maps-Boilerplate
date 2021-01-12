@@ -1,7 +1,7 @@
 const initialState = {
   user_current_location_reducer: {
-    latitude: '',
-    longitude: '',
+    latitude: 0,
+    longitude: 0,
   }
 }
 

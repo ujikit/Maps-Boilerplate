@@ -94,11 +94,6 @@ function DestinationScreen ({
 
   _handlePickLocation = () => {
     navigation.navigate('ChooseLocation')
-    setTimeout(() => {
-      setCurrentLocation('')
-      setDestinationLocation('')
-      setLocationFound([])
-    }, 1500)
   }
 
   return (
