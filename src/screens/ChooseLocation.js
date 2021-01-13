@@ -15,6 +15,8 @@ import Geolocation from 'react-native-geolocation-service';
 import MapView, { Marker } from "react-native-maps";
 import {connect, useDispatch} from 'react-redux';
 
+// components
+import Loader from '../components/Loader'
 // configs
 import {GOOGLE_API_KEY} from '../configs'
 // redux actions
@@ -30,6 +32,9 @@ function ChooseLocationScreen ({
 }) {
   const dispatch = useDispatch();
 
+  let {current_location} = route.params;
+
+  let [is_loading, setIsLoading] = useState(true);
   let [init_region, setInitRegion] = useState({
     latitude: user_current_location_reducer.latitude,
     longitude: user_current_location_reducer.longitude,
@@ -52,7 +57,10 @@ function ChooseLocationScreen ({
   ]);
 
   useEffect(() => {
-    _handleGetGeocodeAPI(selected_location_reducer.geometry.location.lat, selected_location_reducer.geometry.location.lng)
+    setTimeout(() => {
+      setIsLoading(false);
+      _handleGetGeocodeAPI(current_location.geometry.location.lat, current_location.geometry.location.lng)
+    }, 1500)
   }, [])
 
   _handleGetCurrentPosition = () => {
@@ -78,7 +86,7 @@ function ChooseLocationScreen ({
   }
 
   _handleSetDestinationLocation = () => {
-
+    setIsLoading(true);
     setTimeout(() => {
       type_location_reducer == 'current' ? dispatch(currentLocationDispatch(location_found[0].name)) : dispatch(destinationLocationDispatch(location_found[0].name))
       navigation.goBack();
@@ -88,32 +96,32 @@ function ChooseLocationScreen ({
   _handleGetGeocodeAPI = (latitude, longitude) => {
     fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_API_KEY}`)
       .then(async response_geocoding => {
-
         let json = await response_geocoding.json();
         console.log('success_fetching_geocoding_maps', json);
+
         fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${json.results[0].place_id}&key=${GOOGLE_API_KEY}`)
           .then(async response_place => {
-
             let json = await response_place.json();
             console.log('success_fetching_place_maps', json);
             setLocationFound([{...json.result}])
             setInitRegion({
               ...init_region,
-              latitude: selected_location_reducer.geometry.location.lat,
-              longitude: selected_location_reducer.geometry.location.lng,
+              latitude: latitude,
+              longitude: longitude,
               latitudeDelta: init_region.latitudeDelta,
               longitudeDelta: init_region.longitudeDelta
             })
             setInitPoint({
-              latitude: selected_location_reducer.geometry.location.lat,
-              longitude: selected_location_reducer.geometry.location.lng
+              latitude: latitude,
+              longitude: longitude
             })
             setLatLng({
-              latitude: selected_location_reducer.geometry.location.lat,
-              longitude: selected_location_reducer.geometry.location.lng
+              latitude: latitude,
+              longitude: longitude
             })
           })
           .catch(error_place => console.error('error_fetching_place_maps', error_place))
+
       })
       .catch(error_geocoding => {
         console.error('error_fetching_geocoding_maps', error_geocoding)
@@ -123,10 +131,13 @@ function ChooseLocationScreen ({
   return (
     <Container>
       <View style={{flex: 1}}>
+        <Loader show={is_loading}/>
         <View style={styles.container}>
           <MapView
             style={styles.map}
             region={init_region}
+            minZoomLevel={0}
+            maxZoomLevel={20}
             onRegionChangeComplete={region => {
               console.log('dddddd', region);
 

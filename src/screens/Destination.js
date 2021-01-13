@@ -36,17 +36,7 @@ function DestinationScreen ({
   let [current_location, setCurrentLocation] = useState('');
   let [destination_location, setDestinationLocation] = useState('');
   let [geocode_found, setGeocodeFound] = useState([]);
-  // let [location_found, setLocationFound] = useState([]);
-  let [location_found, setLocationFound] = useState([
-    {
-      name: 'SMP Budi Mulia 1',
-      formatted_address: 'Jl. Wardhani No.1, Kotabaru, Kec. Gondokusuman, Kota Yogyakarta, Daerah Istimewa Yogyakarta 55224, Indonesia'
-    },
-    {
-      name: 'SMP Budi Mulia 2',
-      formatted_address: 'Jl. Wardhani No.1, Kotabaru, Kec. Gondokusuman, Kota Yogyakarta, Daerah Istimewa Yogyakarta 55224, Indonesia'
-    },
-  ]);
+  let [location_found, setLocationFound] = useState([]);
 
   _handleTypeCurrentLocation = (current_location) => {
     setCurrentLocation(current_location);
@@ -100,7 +90,9 @@ function DestinationScreen ({
 
   _handlePickLocation = () => {
     dispatch(selectedLocationDispatch(geocode_found[0]))
-    navigation.navigate('ChooseLocation')
+    navigation.navigate('ChooseLocation', {
+      current_location: geocode_found[0]
+    })
   }
 
   return (
@@ -159,7 +151,7 @@ function DestinationScreen ({
         </View>
         <View style={{flex: 1, marginTop: current_location || destination_location || location_found.length ? 0 : 20, paddingHorizontal: location_found.length ? 0 : PADDING_HORIZONTAL}}>
           {
-            location_found.length ?
+            !is_fetching_location && current_location || destination_location && location_found.length ?
               (<FlatList
                 data={location_found}
                 showsVerticalScrollIndicator={false}
