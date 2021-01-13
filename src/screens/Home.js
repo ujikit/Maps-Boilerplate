@@ -1,13 +1,14 @@
 import React, {useEffect} from 'react';
 import {
   Image,
+  PermissionsAndroid,
   TouchableOpacity,
   View,
 } from 'react-native';
 import {
   Container,
 } from 'native-base';
-import Geolocation from '@react-native-community/geolocation';
+import Geolocation from 'react-native-geolocation-service';
 import {connect, useDispatch} from 'react-redux';
 
 // redux actions
@@ -20,11 +21,37 @@ function HomeScreen ({
   const dispatch = useDispatch();
 
   useEffect(() => {
-    Geolocation.getCurrentPosition((info) => {
-      let {coords} = info;
-      dispatch(userCurrentLocationDispatch(coords));
-    });
+    requestLocationPermission()
   }, []);
+
+  requestLocationPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+          title: 'Location Access Required',
+          message: 'This App needs to Access your location',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        //To Check, If Permission is granted
+        Geolocation.getCurrentPosition(
+          (info) => {
+            let {coords} = info;
+            dispatch(userCurrentLocationDispatch(coords));
+          },
+          (error) => {
+            console.log('error_getting_geolocation', error.code, error.message);
+          },
+          { enableHighAccuracy: true, maximumAge: 0 }
+        );
+      } else {
+        alert('Permission Denied');
+      }
+    } catch (err) {
+      alert('err', err);
+    }
+  };
 
   return (
     <Container>

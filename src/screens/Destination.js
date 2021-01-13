@@ -18,12 +18,16 @@ import Header from '../components/Header'
 import Line from '../components/Line'
 // configs
 import {GOOGLE_API_KEY} from '../configs'
+// redux actions
+import {setTypeLocationDispatch, currentLocationDispatch, destinationLocationDispatch, selectedLocationDispatch} from '../states/actions/destination_all_action'
 
 const PADDING_HORIZONTAL = 15;
 
 function DestinationScreen ({
   route,
   navigation,
+  current_location_reducer,
+  destination_location_reducer
 }) {
   const dispatch = useDispatch();
   const ref_autocomplete = useRef(null);
@@ -31,24 +35,23 @@ function DestinationScreen ({
   let [is_fetching_location, setIsFetchingLocation] = useState(false);
   let [current_location, setCurrentLocation] = useState('');
   let [destination_location, setDestinationLocation] = useState('');
-  let [location_found, setLocationFound] = useState([]);
-  // let [location_found, setLocationFound] = useState([
-  //   {
-  //     name: 'SMP Budi Mulia 1',
-  //     formatted_address: 'Jl. Wardhani No.1, Kotabaru, Kec. Gondokusuman, Kota Yogyakarta, Daerah Istimewa Yogyakarta 55224, Indonesia'
-  //   },
-  //   {
-  //     name: 'SMP Budi Mulia 2',
-  //     formatted_address: 'Jl. Wardhani No.1, Kotabaru, Kec. Gondokusuman, Kota Yogyakarta, Daerah Istimewa Yogyakarta 55224, Indonesia'
-  //   },
-  // ]);
-
-  useEffect(() => {
-
-  }, [])
+  let [geocode_found, setGeocodeFound] = useState([]);
+  // let [location_found, setLocationFound] = useState([]);
+  let [location_found, setLocationFound] = useState([
+    {
+      name: 'SMP Budi Mulia 1',
+      formatted_address: 'Jl. Wardhani No.1, Kotabaru, Kec. Gondokusuman, Kota Yogyakarta, Daerah Istimewa Yogyakarta 55224, Indonesia'
+    },
+    {
+      name: 'SMP Budi Mulia 2',
+      formatted_address: 'Jl. Wardhani No.1, Kotabaru, Kec. Gondokusuman, Kota Yogyakarta, Daerah Istimewa Yogyakarta 55224, Indonesia'
+    },
+  ]);
 
   _handleTypeCurrentLocation = (current_location) => {
     setCurrentLocation(current_location);
+    dispatch(currentLocationDispatch(current_location))
+    dispatch(setTypeLocationDispatch('current'))
     if (!current_location) {
       return setLocationFound([])
     }
@@ -58,6 +61,8 @@ function DestinationScreen ({
 
   _handleTypeDestinationLocation = (destination_location) => {
     setDestinationLocation(destination_location);
+    dispatch(destinationLocationDispatch(destination_location))
+    dispatch(setTypeLocationDispatch('destination'))
     if (!destination_location) {
       return setLocationFound([])
     }
@@ -71,14 +76,15 @@ function DestinationScreen ({
     ref_autocomplete.current = setTimeout(async () => {
       fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${parse_current_location}&key=${GOOGLE_API_KEY}`)
         .then(async response_geocoding => {
-          console.log('success_fetching_geocoding_maps', response_geocoding);
 
           let json = await response_geocoding.json();
+          console.log('success_fetching_geocoding_maps', json);
+          setGeocodeFound([{...json.results[0]}])
           fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${json.results[0].place_id}&key=${GOOGLE_API_KEY}`)
             .then(async response_place => {
-              console.log('success_fetching_place_maps', response_place);
 
               let json = await response_place.json();
+              console.log('success_fetching_place_maps', json);
               setLocationFound([{...json.result}])
             })
             .catch(error_place => console.error('error_fetching_place_maps', error_place))
@@ -93,6 +99,7 @@ function DestinationScreen ({
   }
 
   _handlePickLocation = () => {
+    dispatch(selectedLocationDispatch(geocode_found[0]))
     navigation.navigate('ChooseLocation')
   }
 
@@ -111,7 +118,7 @@ function DestinationScreen ({
             />
           <FormInput
             placeholder="Your current location"
-            value={current_location}
+            value={current_location_reducer.value}
             setState={_handleTypeCurrentLocation}
           />
           </View>
@@ -124,7 +131,7 @@ function DestinationScreen ({
             />
             <FormInput
               placeholder="Search for a destination"
-              value={destination_location}
+              value={destination_location_reducer.value}
               setState={_handleTypeDestinationLocation}
             />
           </View>
@@ -152,7 +159,7 @@ function DestinationScreen ({
         </View>
         <View style={{flex: 1, marginTop: current_location || destination_location || location_found.length ? 0 : 20, paddingHorizontal: location_found.length ? 0 : PADDING_HORIZONTAL}}>
           {
-            !is_fetching_location && current_location || destination_location && location_found.length ?
+            location_found.length ?
               (<FlatList
                 data={location_found}
                 showsVerticalScrollIndicator={false}
@@ -161,7 +168,7 @@ function DestinationScreen ({
                 onEndReachedThreshold={0.5}
                 renderItem={({ item }) => {
                   return (
-                    <TouchableOpacity onPress={()=> _handlePickLocation()} style={{height: 90}}>
+                    <TouchableOpacity onPress={()=> _handlePickLocation(item)} style={{height: 90}}>
                       <View style={{flexDirection: 'row', paddingVertical: 15}}>
                         <View style={{width: 40, alignItems: 'center'}}>
                           <Icon type="FontAwesome5" name="map-marker-alt" style={{ color: 'rgb(199, 197, 197)', fontSize: 23 }} />
@@ -222,4 +229,7 @@ function DestinationScreen ({
   )
 }
 
-export default connect(state => ({}))(DestinationScreen);
+export default connect(state => ({
+  current_location_reducer: state.destination_all_reducer.current_location_reducer,
+  destination_location_reducer: state.destination_all_reducer.destination_location_reducer,
+}))(DestinationScreen);

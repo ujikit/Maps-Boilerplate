@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Dimensions,
   Image,
@@ -11,7 +11,7 @@ import {
   Container,
   Icon,
 } from 'native-base';
-import Geolocation from '@react-native-community/geolocation';
+import Geolocation from 'react-native-geolocation-service';
 import MapView, { Marker } from "react-native-maps";
 import {connect, useDispatch} from 'react-redux';
 
@@ -19,11 +19,14 @@ import {connect, useDispatch} from 'react-redux';
 import {GOOGLE_API_KEY} from '../configs'
 // redux actions
 import {userCurrentLocationDispatch} from '../states/actions/global_all_action'
+import {currentLocationDispatch, destinationLocationDispatch} from '../states/actions/destination_all_action'
 
 function ChooseLocationScreen ({
   route,
   navigation,
   user_current_location_reducer,
+  type_location_reducer,
+  selected_location_reducer,
 }) {
   const dispatch = useDispatch();
 
@@ -48,20 +51,67 @@ function ChooseLocationScreen ({
     }
   ]);
 
-  _handleGetGeocodeAPI = (region) => {
-    fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${region.latitude || user_current_location_reducer.latitude},${region.longitude || user_current_location_reducer.longitude}&key=${GOOGLE_API_KEY}`)
+  useEffect(() => {
+    _handleGetGeocodeAPI(selected_location_reducer.geometry.location.lat, selected_location_reducer.geometry.location.lng)
+  }, [])
+
+  _handleGetCurrentPosition = () => {
+    Geolocation.getCurrentPosition((info) => {
+      let {coords} = info;
+      dispatch(userCurrentLocationDispatch(coords));
+      setInitRegion({
+        ...init_region,
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        latitudeDelta: init_region.latitudeDelta,
+        longitudeDelta: init_region.longitudeDelta
+      })
+      setInitPoint({
+        latitude: coords.latitude,
+        longitude: coords.longitude
+      })
+      setLatLng({
+        latitude: coords.latitude,
+        longitude: coords.longitude
+      })
+    });
+  }
+
+  _handleSetDestinationLocation = () => {
+
+    setTimeout(() => {
+      type_location_reducer == 'current' ? dispatch(currentLocationDispatch(location_found[0].name)) : dispatch(destinationLocationDispatch(location_found[0].name))
+      navigation.goBack();
+    }, 1500)
+  }
+
+  _handleGetGeocodeAPI = (latitude, longitude) => {
+    fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_API_KEY}`)
       .then(async response_geocoding => {
-        console.log('success_fetching_geocoding_maps', response_geocoding);
 
         let json = await response_geocoding.json();
-        console.log('jsonjson', json);
+        console.log('success_fetching_geocoding_maps', json);
         fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${json.results[0].place_id}&key=${GOOGLE_API_KEY}`)
           .then(async response_place => {
-            console.log('success_fetching_place_maps', response_place);
 
             let json = await response_place.json();
-            console.log('jsonjson22', json);
+            console.log('success_fetching_place_maps', json);
             setLocationFound([{...json.result}])
+            setInitRegion({
+              ...init_region,
+              latitude: selected_location_reducer.geometry.location.lat,
+              longitude: selected_location_reducer.geometry.location.lng,
+              latitudeDelta: init_region.latitudeDelta,
+              longitudeDelta: init_region.longitudeDelta
+            })
+            setInitPoint({
+              latitude: selected_location_reducer.geometry.location.lat,
+              longitude: selected_location_reducer.geometry.location.lng
+            })
+            setLatLng({
+              latitude: selected_location_reducer.geometry.location.lat,
+              longitude: selected_location_reducer.geometry.location.lng
+            })
           })
           .catch(error_place => console.error('error_fetching_place_maps', error_place))
       })
@@ -99,7 +149,7 @@ function ChooseLocationScreen ({
                 latitude: region.latitude,
                 longitude: region.longitude
               })
-              _handleGetGeocodeAPI(region);
+              _handleGetGeocodeAPI(region.latitude, region.longitude);
             }}
           >
             <Marker coordinate={init_point} />
@@ -108,12 +158,12 @@ function ChooseLocationScreen ({
         <View style={styles.bottom}>
           <View style={{flex: 1, flexDirection: 'row', paddingVertical: 10, paddingHorizontal: 15}}>
             <View style={{flex: 1}}>
-              <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', backgroundColor: 'white', width: 45, height: 45, borderRadius: 90 }}>
+              <TouchableOpacity onPress={() => navigation.goBack()} style={{justifyContent: 'center', alignItems: 'center', backgroundColor: 'white', width: 45, height: 45, borderRadius: 90 }}>
                 <Icon type="AntDesign" name="arrowleft" style={{ color: 'rgb(97, 94, 94)', fontSize: 23 }} />
               </TouchableOpacity>
             </View>
             <View style={{flex: 1}}>
-              <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', alignSelf: 'flex-end', backgroundColor: 'white', width: 45, height: 45, borderRadius: 90 }}>
+              <TouchableOpacity onPress={() => _handleGetCurrentPosition()} style={{justifyContent: 'center', alignItems: 'center', alignSelf: 'flex-end', backgroundColor: 'white', width: 45, height: 45, borderRadius: 90 }}>
                 <Icon type="MaterialCommunityIcons" name="target" style={{ color: 'rgb(97, 94, 94)', fontSize: 23 }} />
               </TouchableOpacity>
             </View>
@@ -139,8 +189,8 @@ function ChooseLocationScreen ({
                 <Text numberOfLines={4} style={{fontSize: 15, color: 'rgb(70, 68, 68)', marginTop: 10}}>{location_found[0].formatted_address}</Text>
               </View>
             </View>
-            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 15}}>
-              <TouchableOpacity style={{width: '100%', alignItems: 'center', borderRadius: 20, backgroundColor: 'rgb(75, 147, 29)'}}>
+            <View style={{flex: 1, justifyContent: 'flex-end', alignItems: 'center', paddingHorizontal: 15, marginBottom: 25}}>
+              <TouchableOpacity onPress={() => _handleSetDestinationLocation()} style={{width: '100%', alignItems: 'center', borderRadius: 20, backgroundColor: 'rgb(75, 147, 29)'}}>
                 <Text style={{paddingVertical: 15, paddingHorizontal: 30, color: 'white', fontWeight: 'bold'}}>Set destination location</Text>
               </TouchableOpacity>
             </View>
@@ -171,5 +221,7 @@ const styles = StyleSheet.create({
 });
 
 export default connect(state => ({
-  user_current_location_reducer: state.global_all_reducer.user_current_location_reducer
+  user_current_location_reducer: state.global_all_reducer.user_current_location_reducer,
+  type_location_reducer: state.destination_all_reducer.type_location_reducer,
+  selected_location_reducer: state.destination_all_reducer.selected_location_reducer,
 }))(ChooseLocationScreen);
