@@ -40,7 +40,7 @@ function DestinationScreen ({
 
   _handleTypeCurrentLocation = (current_location) => {
     setCurrentLocation(current_location);
-    dispatch(currentLocationDispatch(current_location))
+    dispatch(currentLocationDispatch({name: current_location}))
     dispatch(setTypeLocationDispatch('current'))
     if (!current_location) {
       return setLocationFound([])
@@ -51,7 +51,7 @@ function DestinationScreen ({
 
   _handleTypeDestinationLocation = (destination_location) => {
     setDestinationLocation(destination_location);
-    dispatch(destinationLocationDispatch(destination_location))
+    dispatch(destinationLocationDispatch({name: destination_location}))
     dispatch(setTypeLocationDispatch('destination'))
     if (!destination_location) {
       return setLocationFound([])
@@ -69,6 +69,10 @@ function DestinationScreen ({
 
           let json = await response_geocoding.json();
           console.log('success_fetching_geocoding_maps', json);
+          if (!json.results.length) {
+            setIsFetchingLocation(false);
+            return setLocationFound([])
+          }
           setGeocodeFound([{...json.results[0]}])
           fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${json.results[0].place_id}&key=${GOOGLE_API_KEY}`)
             .then(async response_place => {
@@ -110,7 +114,7 @@ function DestinationScreen ({
             />
           <FormInput
             placeholder="Your current location"
-            value={current_location_reducer.value}
+            value={current_location_reducer.name}
             setState={_handleTypeCurrentLocation}
           />
           </View>
@@ -123,12 +127,12 @@ function DestinationScreen ({
             />
             <FormInput
               placeholder="Search for a destination"
-              value={destination_location_reducer.value}
+              value={destination_location_reducer.name}
               setState={_handleTypeDestinationLocation}
             />
           </View>
         </View>
-        <TouchableOpacity>
+        <TouchableOpacity disabled={true}>
           <View style={{flexDirection: 'row', marginTop: 18}}>
             <View style={{flexDirection: 'row', borderRadius: 18, borderWidth: 1, borderColor: 'rgb(238, 234, 234)'}}>
               <View style={{flexDirection: 'row', paddingHorizontal: PADDING_HORIZONTAL, paddingVertical: 9}}>
@@ -151,69 +155,64 @@ function DestinationScreen ({
         </View>
         <View style={{flex: 1, marginTop: current_location || destination_location || location_found.length ? 0 : 20, paddingHorizontal: location_found.length ? 0 : PADDING_HORIZONTAL}}>
           {
-            !is_fetching_location && current_location || destination_location && location_found.length ?
-              (<FlatList
-                data={location_found}
-                showsVerticalScrollIndicator={false}
-                keyExtractor = { (item, index) => index.toString() }
-                ListFooterComponentStyle={{paddingVertical: 18}}
-                onEndReachedThreshold={0.5}
-                renderItem={({ item }) => {
-                  return (
-                    <TouchableOpacity onPress={()=> _handlePickLocation(item)} style={{height: 90}}>
-                      <View style={{flexDirection: 'row', paddingVertical: 15}}>
-                        <View style={{width: 40, alignItems: 'center'}}>
-                          <Icon type="FontAwesome5" name="map-marker-alt" style={{ color: 'rgb(199, 197, 197)', fontSize: 23 }} />
-                        </View>
-                        <View style={{flex: 1, marginTop: -5}}>
-                          <View>
-                            <Text numberOfLines={1} style={{fontWeight: 'bold', fontSize: 16}}>{item.name}</Text>
-                          </View>
-                          <View style={{paddingTop: 5}}>
-                            <Text numberOfLines={2} style={{fontSize: 12.5}}>{item.formatted_address}</Text>
-                          </View>
-                        </View>
-                      </View>
-                      <Line height={1} margin_left={0}/>
-                    </TouchableOpacity>
-                  )
-                }}
-              />)
+            is_fetching_location ?
+              <View style={{width: '100%', alignSelf: 'center'}}>
+                <View style={{width: '100%', paddingTop: 20}}>
+                  <Placeholder
+                    Animation={Shine}
+                    Left={PlaceholderMedia}
+                    >
+                    <PlaceholderLine width={80} />
+                    <PlaceholderLine />
+                    <PlaceholderLine width={30} />
+                  </Placeholder>
+                </View>
+              </View>
             :
-              is_fetching_location && current_location || destination_location ?
-                <View style={{width: '100%', alignSelf: 'center'}}>
-                  <View style={{width: '100%', paddingTop: 20}}>
-                    <Placeholder
-                      Animation={Shine}
-                      Left={PlaceholderMedia}
-                      >
-                      <PlaceholderLine width={80} />
-                      <PlaceholderLine />
-                      <PlaceholderLine width={30} />
-                    </Placeholder>
-                  </View>
-                  <View style={{width: '100%', paddingTop: 20}}>
-                    <Placeholder
-                      Animation={Shine}
-                      Left={PlaceholderMedia}
-                      >
-                      <PlaceholderLine width={80} />
-                      <PlaceholderLine />
-                      <PlaceholderLine width={30} />
-                    </Placeholder>
-                  </View>
+              !location_found.length?
+                <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                  <Text>Lokasi tidak ditemukan</Text>
                 </View>
               :
-                !current_location && !destination_location &&
-                  (
-                    <View style={{alignSelf: 'center'}}>
-                      <Image
-                        resizeMode="stretch"
-                        style={{width: 300, height: 60}}
-                        source={require('../assets/images/icons/Gojek/order-gojek-now.png')}
-                      />
-                    </View>
-                  )
+                !is_fetching_location && current_location || destination_location && location_found.length ?
+                  (<FlatList
+                    data={location_found}
+                    showsVerticalScrollIndicator={false}
+                    keyExtractor = { (item, index) => index.toString() }
+                    ListFooterComponentStyle={{paddingVertical: 18}}
+                    onEndReachedThreshold={0.5}
+                    renderItem={({ item }) => {
+                      return (
+                        <TouchableOpacity onPress={()=> _handlePickLocation(item)} style={{height: 90}}>
+                          <View style={{flexDirection: 'row', paddingVertical: 15}}>
+                            <View style={{width: 40, alignItems: 'center'}}>
+                              <Icon type="FontAwesome5" name="map-marker-alt" style={{ color: 'rgb(199, 197, 197)', fontSize: 23 }} />
+                            </View>
+                            <View style={{flex: 1, marginTop: -5}}>
+                              <View>
+                                <Text numberOfLines={1} style={{fontWeight: 'bold', fontSize: 16}}>{item.name}</Text>
+                              </View>
+                              <View style={{paddingTop: 5}}>
+                                <Text numberOfLines={2} style={{fontSize: 12.5}}>{item.formatted_address}</Text>
+                              </View>
+                            </View>
+                          </View>
+                          <Line height={1} margin_left={0}/>
+                        </TouchableOpacity>
+                      )
+                    }}
+                  />)
+                :
+                  !current_location && !destination_location &&
+                    (
+                      <View style={{alignSelf: 'center'}}>
+                        <Image
+                          resizeMode="stretch"
+                          style={{width: 300, height: 60}}
+                          source={require('../assets/images/icons/Gojek/order-gojek-now.png')}
+                        />
+                      </View>
+                    )
           }
         </View>
       </View>
