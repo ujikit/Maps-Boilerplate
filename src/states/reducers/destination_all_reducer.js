@@ -1,7 +1,13 @@
 const initialState = {
   type_location_reducer: '',
-  current_location_reducer: {},
-  destination_location_reducer: {},
+  current_location_reducer: {
+    name: '',
+    place_id: ''
+  },
+  destination_location_reducer: {
+    name: '',
+    place_id: ''
+  },
   selected_location_reducer: {}
 }
 
@@ -17,12 +23,18 @@ const destination_all_reducer = (state = initialState, action) => {
     case 'SET_CURRENT_LOCATION':
     return {
       ...state,
-      current_location_reducer: action.payload,
+      current_location_reducer: {
+        ...state.current_location_reducer,
+        ...action.payload
+      },
     }
     case 'SET_DESTINATION_LOCATION':
     return {
       ...state,
-      destination_location_reducer: action.payload,
+      destination_location_reducer: {
+        ...state.destination_location_reducer,
+        ...action.payload
+      },
     }
     case 'SELECTED_LOCATION':
     return {

@@ -42,6 +42,9 @@ function DestinationScreen ({
     setCurrentLocation(current_location);
     dispatch(currentLocationDispatch({name: current_location}))
     dispatch(setTypeLocationDispatch('current'))
+    if (current_location.split("").length <= 1) {
+      return console.log('String must more than 1 character.');
+    }
     if (!current_location) {
       return setLocationFound([])
     }
@@ -53,6 +56,9 @@ function DestinationScreen ({
     setDestinationLocation(destination_location);
     dispatch(destinationLocationDispatch({name: destination_location}))
     dispatch(setTypeLocationDispatch('destination'))
+    if (destination_location.split("").length <= 1) {
+      return console.log('String must more than 1 character.');
+    }
     if (!destination_location) {
       return setLocationFound([])
     }
