@@ -29,6 +29,7 @@ function ChooseLocationScreen ({
   user_current_location_reducer,
   type_location_reducer,
   selected_location_reducer,
+  choose_ride_type_reducer,
 }) {
   const dispatch = useDispatch();
 
@@ -179,9 +180,29 @@ function ChooseLocationScreen ({
               </TouchableOpacity>
             </View>
           </View>
-          <View style={{height: 220, backgroundColor: 'white'}}>
+          <View style={{height: 305, backgroundColor: 'white'}}>
+            <TouchableOpacity onPress={() => navigation.navigate('ChooseData')} style={{height: 80, flexDirection: 'row', paddingHorizontal: 15}}>
+              <View style={{flex: 1, flexDirection: 'row'}}>
+                <View style={{width: 40, justifyContent: 'center'}}>
+                  <Image
+                    resizeMode="stretch"
+                    style={{width: 33, height: 33}}
+                    source={choose_ride_type_reducer.image}
+                  />
+                </View>
+                <View style={{flex: 1, justifyContent: 'center', paddingLeft: 5}}>
+                  <Text numberOfLines={1} style={{fontWeight: 'bold', fontSize: 15, color: 'rgb(70, 68, 68)'}}>{choose_ride_type_reducer.name}</Text>
+                  <Text numberOfLines={1} style={{fontSize: 14, color: 'rgb(70, 68, 68)'}}>{choose_ride_type_reducer.person}</Text>
+                </View>
+              </View>
+              <View style={{flex: 1, justifyContent: 'center', alignItems: 'flex-end'}}>
+                <View style={{width: 20, height: 20, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgb(84, 84, 84)', borderRadius: 90}}>
+                  <Icon type="SimpleLineIcons" name="options" style={{ color: 'white', fontSize: 11 }} />
+                </View>
+              </View>
+            </TouchableOpacity>
             <TouchableOpacity style={{height: 65, flexDirection: 'row', paddingHorizontal: 15}}>
-              <View style={{width: 110, flexDirection: 'row'}}>
+              <View style={{flex: 1, flexDirection: 'row'}}>
                 <View style={{width: 40, justifyContent: 'center'}}>
                   <Image
                     resizeMode="stretch"
@@ -190,7 +211,7 @@ function ChooseLocationScreen ({
                   />
                 </View>
                 <View style={{flex: 1, justifyContent: 'center'}}>
-                  <Text numberOfLines={1} style={{fontWeight: 'bold', fontSize: 15, color: 'rgb(70, 68, 68)'}}>LinkAja</Text>
+                  <Text numberOfLines={1} style={{fontWeight: 'bold', fontSize: 15, color: 'rgb(70, 68, 68)', paddingLeft: 5}}>LinkAja</Text>
                 </View>
               </View>
               <View style={{flex: 1, justifyContent: 'center', alignItems: 'flex-end'}}>
@@ -218,7 +239,7 @@ function ChooseLocationScreen ({
                   <View style={{flex: 1, alignItems: 'flex-end'}}>
                     <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
                       <View style={{flex: 1, alignItems: 'flex-end'}}>
-                        <Text numberOfLines={1} style={{color: 'white', fontWeight: 'bold'}}>Rp. 20.000</Text>
+                        <Text numberOfLines={1} style={{color: 'white', fontWeight: 'bold'}}>{choose_ride_type_reducer.price}</Text>
                       </View>
                       <View style={{width: 40, alignItems: 'flex-end'}}>
                         <Icon type="Ionicons" name="arrow-forward-circle" style={{ color: 'white', fontSize: 30 }} />
@@ -303,4 +324,5 @@ export default connect(state => ({
   user_current_location_reducer: state.global_all_reducer.user_current_location_reducer,
   type_location_reducer: state.destination_all_reducer.type_location_reducer,
   selected_location_reducer: state.destination_all_reducer.selected_location_reducer,
+  choose_ride_type_reducer: state.choose_data_all_reducer.choose_ride_type_reducer,
 }))(ChooseLocationScreen);
