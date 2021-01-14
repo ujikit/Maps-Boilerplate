@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FlatList, StyleSheet, Image, Dimensions, TextInput, Platform, ScrollView, TouchableOpacity, Modal, Alert } from 'react-native'
 import { Container, Card, Footer, Text, Content, View, Button, Header, Icon } from 'native-base'
-import MapView, {Marker} from 'react-native-maps'
+import MapView, {Polyline} from 'react-native-maps'
 
 function TestMapScreen ({
   route,
@@ -68,25 +68,27 @@ function TestMapScreen ({
         <MapView
           style={styles.map}
           region={{
-            longitude: 114.5892632,
-            latitude: -3.331073,
+            longitude: 110.2875597394757,
+            latitude: -7.818842582048528,
             latitudeDelta: 0.015,
             longitudeDelta: 0.0121,
           }}>
-          {
-            all_search_lodging_data.map(data => (
-              <MapView.Marker key={data.id} coordinate={{ latitude: Number(data.coordinates.latitude), longitude: Number(data.coordinates.longitude) }} title={`${data.name}`} description={`It has a category named`} >
-                <Image source={require('../assets/images/marker.png')} style={{ width: 50, height: 55 }} />
-                <MapView.Callout onPress={() =>  alert(data.id)}>
-                  <View>
-                    <Text style={{ fontSize: 11 }}>
-                      {data.name}
-                    </Text>
-                  </View>
-                </MapView.Callout>
-              </MapView.Marker>
-            ))
-          }
+          <Polyline
+            coordinates={[
+              { latitude: -7.818842582048528, longitude: 110.2875597394757 },
+              { latitude: 40.7516279, longitude: -73.9869358 },
+            ]}
+            strokeColor="#000"
+            strokeColors={[
+              '#7F0000',
+              '#00000000', // no color, creates a "long" gradient between the previous and next coordinate
+              '#B24112',
+              '#E5845C',
+              '#238C23',
+              '#7F0000'
+            ]}
+            strokeWidth={6}
+          />
         </MapView>
       </View>
     </Container>

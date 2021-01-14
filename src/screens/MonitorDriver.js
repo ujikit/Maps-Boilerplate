@@ -25,9 +25,8 @@ import {MAIN_COLOR} from '../configs/Color'
 // redux actions
 import {userCurrentLocationDispatch} from '../states/actions/global_all_action'
 import {currentLocationDispatch, destinationLocationDispatch} from '../states/actions/destination_all_action'
-import {setIsEditDispatch} from '../states/actions/choose_location_all_action'
 
-function ChooseLocationScreen ({
+function MonitorDriverScreen ({
   route,
   navigation,
   user_current_location_reducer,
@@ -180,11 +179,6 @@ function ChooseLocationScreen ({
       .catch(error_direction => console.error('error_fetching_direction_maps', error_place))
   }
 
-  _handleEditDirection = () => {
-    dispatch(setIsEditDispatch(true))
-    navigation.goBack()
-  }
-
   return (
     <Container>
       <View style={{flex: 1}}>
@@ -223,13 +217,6 @@ function ChooseLocationScreen ({
                     <Text numberOfLines={1}>{destination_location_reducer.name}</Text>
                   </View>
                 </View>
-                <TouchableOpacity onPress={() => _handleEditDirection()} style={{width: 80, justifyContent: 'center', alignItems: 'center'}}>
-                  <View style={{borderWidth: 2, borderColor: MAIN_COLOR, borderRadius: 15}}>
-                    <Text style={{fontSize: 17, color: MAIN_COLOR, fontWeight: 'bold', paddingHorizontal: 20, paddingVertical: 5}}>
-                      Edit
-                    </Text>
-                  </View>
-                </TouchableOpacity>
               </View>
             </View>
           :
@@ -312,137 +299,54 @@ function ChooseLocationScreen ({
             }
           </MapView>
         </View>
-        {
-          current_location_reducer.place_id || destination_location_reducer.place_id ?
-            <View style={styles.bottom}>
-              <View style={{flex: 1, flexDirection: 'row', paddingVertical: 10, paddingHorizontal: 15}}>
-                <View style={{flex: 1}}>
-                  <TouchableOpacity onPress={() => navigation.goBack()} style={{justifyContent: 'center', alignItems: 'center', backgroundColor: 'white', width: 45, height: 45, borderRadius: 90 }}>
-                    <Icon type="AntDesign" name="arrowleft" style={{ color: 'rgb(97, 94, 94)', fontSize: 23 }} />
-                  </TouchableOpacity>
+        <View style={styles.bottom}>
+          <View style={{flex: 1, flexDirection: 'row', paddingVertical: 10, paddingHorizontal: 15}}>
+            <View style={{flex: 1}}>
+              <TouchableOpacity onPress={() => navigation.goBack()} style={{justifyContent: 'center', alignItems: 'center', backgroundColor: 'white', width: 45, height: 45, borderRadius: 90 }}>
+                <Icon type="AntDesign" name="arrowleft" style={{ color: 'rgb(97, 94, 94)', fontSize: 23 }} />
+              </TouchableOpacity>
+            </View>
+            <View style={{flex: 1}}>
+              <TouchableOpacity onPress={() => _handleGetCurrentPosition()} style={{justifyContent: 'center', alignItems: 'center', alignSelf: 'flex-end', backgroundColor: 'white', width: 45, height: 45, borderRadius: 90 }}>
+                <Icon type="MaterialCommunityIcons" name="shield-check" style={{ color: MAIN_COLOR, fontSize: 21 }} />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View style={{backgroundColor: 'white', height: 200, borderTopRightRadius: 25, borderTopLeftRadius: 25, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.8, shadowRadius: 2, elevation: 15 }}>
+            <View style={{flexDirection: 'row', paddingHorizontal: 20, paddingTop: 30}}>
+              <View style={{flex: 1, paddingRight: 10}}>
+                <View>
+                  <Text style={{fontWeight: 'bold', fontSize: 19}}>R6508HP</Text>
                 </View>
-                <View style={{flex: 1}}>
-                  <TouchableOpacity onPress={() => _handleGetCurrentPosition()} style={{justifyContent: 'center', alignItems: 'center', alignSelf: 'flex-end', backgroundColor: 'white', width: 45, height: 45, borderRadius: 90 }}>
-                    <Icon type="MaterialCommunityIcons" name="target" style={{ color: 'rgb(97, 94, 94)', fontSize: 23 }} />
-                  </TouchableOpacity>
+                <View style={{paddingTop: 10}}>
+                  <Line height={1.5} margin_left={0}/>
                 </View>
               </View>
-              <View style={{height: 305, backgroundColor: 'white'}}>
-                <TouchableOpacity onPress={() => navigation.navigate('ChooseData')} style={{height: 80, flexDirection: 'row', paddingHorizontal: 15}}>
-                  <View style={{flex: 1, flexDirection: 'row'}}>
-                    <View style={{width: 40, justifyContent: 'center'}}>
-                      <Image
-                        resizeMode="stretch"
-                        style={{width: 33, height: 33}}
-                        source={choose_ride_type_reducer.image}
-                      />
-                    </View>
-                    <View style={{flex: 1, justifyContent: 'center', paddingLeft: 5}}>
-                      <Text numberOfLines={1} style={{fontWeight: 'bold', fontSize: 15, color: 'rgb(70, 68, 68)'}}>{choose_ride_type_reducer.name}</Text>
-                      <Text numberOfLines={1} style={{fontSize: 14, color: 'rgb(70, 68, 68)'}}>{choose_ride_type_reducer.person}</Text>
-                    </View>
+              <View style={{width: 100, justifyContent: 'center', alignItems: 'center'}}>
+                <Image
+                  resizeMode="stretch"
+                  style={{width: 80, height: 80}}
+                  source={require('../assets/images/icons/Gojek/driver-photo.png')}
+                />
+              </View>
+            </View>
+            <View style={{flexDirection: 'row', paddingHorizontal: 20}}>
+              <View style={{justifyContent: 'center'}}>
+                <Text style={{fontSize: 16, color: 'rgb(80, 79, 79)'}}>Samikin</Text>
+              </View>
+              <View style={{justifyContent: 'center', backgroundColor: 'white', borderRadius: 15, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.8, shadowRadius: 2, elevation: 5, marginLeft: 10}}>
+                <View style={{flexDirection: 'row', paddingHorizontal: 10, paddingVertical: 7}}>
+                  <View style={{width: 30, justifyContent: 'center', alignItems: 'center'}}>
+                    <Icon type="FontAwesome" name="trophy" style={{ color: 'rgb(244, 141, 6)', fontSize: 15 }} />
                   </View>
-                  <View style={{flex: 1, justifyContent: 'center', alignItems: 'flex-end'}}>
-                    <View style={{width: 20, height: 20, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgb(84, 84, 84)', borderRadius: 90}}>
-                      <Icon type="SimpleLineIcons" name="options" style={{ color: 'white', fontSize: 11 }} />
-                    </View>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity disabled={true} style={{height: 65, flexDirection: 'row', paddingHorizontal: 15}}>
-                  <View style={{flex: 1, flexDirection: 'row'}}>
-                    <View style={{width: 40, justifyContent: 'center'}}>
-                      <Image
-                        resizeMode="stretch"
-                        style={{width: 30, height: 30}}
-                        source={require('../assets/images/icons/LinkAja.png')}
-                      />
-                    </View>
-                    <View style={{flex: 1, justifyContent: 'center'}}>
-                      <Text numberOfLines={1} style={{fontWeight: 'bold', fontSize: 15, color: 'rgb(70, 68, 68)', paddingLeft: 5}}>LinkAja</Text>
-                    </View>
-                  </View>
-                  <View style={{flex: 1, justifyContent: 'center', alignItems: 'flex-end'}}>
-                    <View style={{width: 20, height: 20, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgb(84, 84, 84)', borderRadius: 90}}>
-                      <Icon type="SimpleLineIcons" name="options" style={{ color: 'white', fontSize: 11 }} />
-                    </View>
-                  </View>
-                </TouchableOpacity>
-                <View style={{height: 65, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 15}}>
-                  <TouchableOpacity disabled={true} style={{flex: 1, height: 35, flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
-                    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', height: '100%', paddingHorizontal: 15, backgroundColor: 'rgb(0, 168, 230)', borderTopLeftRadius: 25, borderBottomLeftRadius: 25}}>
-                      <Text numberOfLines={1} style={{fontSize: 12, color: 'white'}}>Try PayLater and pay by the end of the month</Text>
-                    </View>
-                    <View style={{width: 50, justifyContent: 'center', alignItems: 'center', height: '100%', paddingHorizontal: 15, backgroundColor: 'rgb(3, 137, 186)', borderTopRightRadius: 25, borderBottomRightRadius: 25}}>
-                      <Text numberOfLines={1} style={{fontSize: 12, color: 'white'}}>Try</Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-                <View style={{flex: 1, justifyContent: 'flex-end', paddingHorizontal: 15, marginBottom: 25}}>
-                  <View style={{height: 60}}>
-                    <TouchableOpacity onPress={() => navigation.navigate('MonitorDriver', {
-                        current_location: current_location
-                      })} style={{flex: 1, flexDirection: 'row', paddingVertical: 15, paddingHorizontal: 20, borderRadius: 20, backgroundColor: 'rgb(75, 147, 29)'}}>
-                      <View style={{width: 110, justifyContent: 'center'}}>
-                        <Text numberOfLines={1} style={{fontSize: 16, color: 'white', fontWeight: 'bold'}}>Order GoRide</Text>
-                      </View>
-                      <View style={{flex: 1, alignItems: 'flex-end'}}>
-                        <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
-                          <View style={{flex: 1, alignItems: 'flex-end'}}>
-                            <Text numberOfLines={1} style={{color: 'white', fontWeight: 'bold'}}>{choose_ride_type_reducer.price}</Text>
-                          </View>
-                          <View style={{width: 40, alignItems: 'flex-end'}}>
-                            <Icon type="Ionicons" name="arrow-forward-circle" style={{ color: 'white', fontSize: 30 }} />
-                          </View>
-                        </View>
-                      </View>
-                    </TouchableOpacity>
+                  <View style={{width: 100, justifyContent: 'center', alignItems: 'center'}}>
+                    <Text>Driver Unggulan</Text>
                   </View>
                 </View>
               </View>
             </View>
-          :
-            <View style={styles.bottom}>
-              <View style={{flex: 1, flexDirection: 'row', paddingVertical: 10, paddingHorizontal: 15}}>
-                <View style={{flex: 1}}>
-                  <TouchableOpacity onPress={() => navigation.goBack()} style={{justifyContent: 'center', alignItems: 'center', backgroundColor: 'white', width: 45, height: 45, borderRadius: 90 }}>
-                    <Icon type="AntDesign" name="arrowleft" style={{ color: 'rgb(97, 94, 94)', fontSize: 23 }} />
-                  </TouchableOpacity>
-                </View>
-                <View style={{flex: 1}}>
-                  <TouchableOpacity onPress={() => _handleGetCurrentPosition()} style={{justifyContent: 'center', alignItems: 'center', alignSelf: 'flex-end', backgroundColor: 'white', width: 45, height: 45, borderRadius: 90 }}>
-                    <Icon type="MaterialCommunityIcons" name="target" style={{ color: 'rgb(97, 94, 94)', fontSize: 23 }} />
-                  </TouchableOpacity>
-                </View>
-              </View>
-              <View style={{backgroundColor: 'white', height: 270, borderTopRightRadius: 25, borderTopLeftRadius: 25, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.8, shadowRadius: 2, elevation: 15 }}>
-                <View style={{flexDirection: 'row', paddingTop: 5, height: 60}}>
-                  <View style={{flex: 1, justifyContent: 'center', paddingHorizontal: 15}}>
-                    <Text numberOfLines={1} style={{fontWeight: 'bold', fontSize: 18, color: 'rgb(70, 68, 68)'}}>Set destination location</Text>
-                  </View>
-                  <View style={{width: 100, justifyContent: 'center', paddingHorizontal: 15}}>
-                  </View>
-                </View>
-                <View style={{flexDirection: 'row', paddingTop: 5, paddingHorizontal: 15}}>
-                  <View style={{width: 60}}>
-                    <Image
-                      resizeMode="stretch"
-                      style={{width: 40, height: 40}}
-                      source={type_location_reducer == 'current' ? require('../assets/images/icons/Gojek/current-location-green.png') : require('../assets/images/icons/Gojek/destination-orange.png')}
-                    />
-                  </View>
-                  <View style={{flex: 1}}>
-                    <Text numberOfLines={1} style={{fontWeight: 'bold', fontSize: 17, color: 'rgb(70, 68, 68)'}}>{location_found[0].name}</Text>
-                    <Text numberOfLines={4} style={{fontSize: 15, color: 'rgb(70, 68, 68)', marginTop: 10}}>{location_found[0].formatted_address}</Text>
-                  </View>
-                </View>
-                <View style={{flex: 1, justifyContent: 'flex-end', alignItems: 'center', paddingHorizontal: 15, marginBottom: 25}}>
-                  <TouchableOpacity onPress={() => _handleSetDestinationLocation()} style={{width: '100%', alignItems: 'center', borderRadius: 20, backgroundColor: 'rgb(75, 147, 29)'}}>
-                    <Text style={{paddingVertical: 15, paddingHorizontal: 30, color: 'white', fontWeight: 'bold'}}>Set destination location</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-        }
+          </View>
+        </View>
       </View>
     </Container>
   )
@@ -456,13 +360,15 @@ const styles = StyleSheet.create({
   },
   map: {
     ...StyleSheet.absoluteFillObject,
-    height: '70%',
+    height: '80%',
   },
   bottom: {
     flex: 1,
     width: "100%",
     position: 'absolute',
-    bottom: 0
+    bottom: 0,
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
   },
 });
 
@@ -474,4 +380,4 @@ export default connect(state => ({
   destination_location_reducer: state.destination_all_reducer.destination_location_reducer,
   choose_ride_type_reducer: state.choose_data_all_reducer.choose_ride_type_reducer,
   is_edit_reducer: state.choose_location_all_reducer.is_edit_reducer,
-}))(ChooseLocationScreen);
+}))(MonitorDriverScreen);
