@@ -128,7 +128,12 @@ function ChooseLocationScreen ({
 
             setLocationFound([{...json.result}])
             if (is_edit_reducer) {
-              current_location_reducer.place_id ? dispatch(currentLocationDispatch({...json.result})) : destination_location_reducer.place_id && dispatch(destinationLocationDispatch({...json.result}))
+              if (type_location_reducer == 'current' && current_location_reducer.place_id !== json.result.place_id) {
+                dispatch(currentLocationDispatch({...json.result}))
+              }
+              else if (type_location_reducer == 'destination' && destination_location_reducer.place_id !== json.result.place_id) {
+                dispatch(destinationLocationDispatch({...json.result}))
+              }
             }
             else {
               current_location_reducer.place_id ? dispatch(destinationLocationDispatch({...json.result})) : destination_location_reducer.place_id && dispatch(currentLocationDispatch({...json.result}))
@@ -420,7 +425,7 @@ function ChooseLocationScreen ({
                     <Image
                       resizeMode="stretch"
                       style={{width: 40, height: 40}}
-                      source={require('../assets/images/icons/Gojek/destination-orange.png')}
+                      source={type_location_reducer == 'current' ? require('../assets/images/icons/Gojek/current-location-green.png') : require('../assets/images/icons/Gojek/destination-orange.png')}
                     />
                   </View>
                   <View style={{flex: 1}}>
