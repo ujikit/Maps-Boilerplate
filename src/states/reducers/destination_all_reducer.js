@@ -2,11 +2,23 @@ const initialState = {
   type_location_reducer: '',
   current_location_reducer: {
     name: '',
-    place_id: ''
+    place_id: '',
+    geometry: {
+      location: {
+        lat: 0,
+        lng: 0
+      }
+    }
   },
   destination_location_reducer: {
     name: '',
-    place_id: ''
+    place_id: '',
+    geometry: {
+      location: {
+        lat: 0,
+        lng: 0
+      }
+    }
   },
   selected_location_reducer: {}
 }

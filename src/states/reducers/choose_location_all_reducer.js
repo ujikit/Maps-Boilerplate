@@ -3,6 +3,7 @@ const initialState = {
     name: '',
     formatted_address: ''
   },
+  is_edit_reducer: false
 }
 
 const choose_location_all_reducer = (state = initialState, action) => {
@@ -17,6 +18,11 @@ const choose_location_all_reducer = (state = initialState, action) => {
         name: action.payload.name,
         formatted_address: action.payload.formatted_address
       },
+    }
+    case 'SET_IS_EDIT':
+    return {
+      ...state,
+      is_edit_reducer: action.payload
     }
     default:
       return state;

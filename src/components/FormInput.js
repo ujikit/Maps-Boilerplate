@@ -11,7 +11,7 @@ function FormInputComponent ({
 }) {
 
   return (
-    <View>
+    <View style={{flex: 1}}>
       <Input
         autoCapitalize="sentences"
         keyboardType="default"

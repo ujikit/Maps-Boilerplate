@@ -12,7 +12,8 @@ import {
   Icon,
 } from 'native-base';
 import Geolocation from 'react-native-geolocation-service';
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Marker, Polyline } from "react-native-maps";
+const polyline = require('@mapbox/polyline');
 import {connect, useDispatch} from 'react-redux';
 
 // components
@@ -24,6 +25,7 @@ import {MAIN_COLOR} from '../configs/Color'
 // redux actions
 import {userCurrentLocationDispatch} from '../states/actions/global_all_action'
 import {currentLocationDispatch, destinationLocationDispatch} from '../states/actions/destination_all_action'
+import {setIsEditDispatch} from '../states/actions/choose_location_all_action'
 
 function ChooseLocationScreen ({
   route,
@@ -34,12 +36,14 @@ function ChooseLocationScreen ({
   choose_ride_type_reducer,
   current_location_reducer,
   destination_location_reducer,
+  is_edit_reducer,
 }) {
   const dispatch = useDispatch();
 
   let {current_location} = route.params;
 
   let [is_loading, setIsLoading] = useState(true);
+  // let [is_loading, setIsLoading] = useState(false);
   let [init_region, setInitRegion] = useState({
     latitude: user_current_location_reducer.latitude,
     longitude: user_current_location_reducer.longitude,
@@ -58,6 +62,12 @@ function ChooseLocationScreen ({
     {
       name: '',
       formatted_address: '',
+    }
+  ]);
+  let [direction, setDirection] = useState([
+    {
+      latitude: 0,
+      longitude: 0,
     }
   ]);
 
@@ -117,7 +127,13 @@ function ChooseLocationScreen ({
             console.log('success_fetching_place_maps', json);
 
             setLocationFound([{...json.result}])
-            current_location_reducer.place_id ? dispatch(destinationLocationDispatch({...json.result})) : destination_location_reducer.place_id && dispatch(currentLocationDispatch({...json.result}))
+            if (is_edit_reducer) {
+              current_location_reducer.place_id ? dispatch(currentLocationDispatch({...json.result})) : destination_location_reducer.place_id && dispatch(destinationLocationDispatch({...json.result}))
+            }
+            else {
+              current_location_reducer.place_id ? dispatch(destinationLocationDispatch({...json.result})) : destination_location_reducer.place_id && dispatch(currentLocationDispatch({...json.result}))
+            }
+
             setInitRegion({
               ...init_region,
               latitude: latitude,
@@ -133,13 +149,35 @@ function ChooseLocationScreen ({
               latitude: latitude,
               longitude: longitude
             })
+            if (current_location_reducer.place_id || destination_location_reducer.place_id) {
+              _handleGetDirectionAPI()
+            }
           })
           .catch(error_place => console.error('error_fetching_place_maps', error_place))
-
       })
       .catch(error_geocoding => {
         console.error('error_fetching_geocoding_maps', error_geocoding)
       })
+  }
+
+  _handleGetDirectionAPI = () => {
+    fetch(`https://maps.googleapis.com/maps/api/directions/json?origin=place_id:${current_location_reducer.place_id}&destination=place_id:${destination_location_reducer.place_id}&key=${GOOGLE_API_KEY}`)
+      .then(async response_direction => {
+        let json = await response_direction.json();
+        console.log('success_fetching_direction_maps', json);
+
+        let points = polyline.decode(json.routes[0].overview_polyline.points)
+        console.log('pointspointspoints',points);
+        let coords = points.map((point, index) => ({ latitude: point[0], longitude: point[1] }))
+        console.log('coordscoordscoords',coords);
+        setDirection(coords)
+      })
+      .catch(error_direction => console.error('error_fetching_direction_maps', error_place))
+  }
+
+  _handleEditDirection = () => {
+    dispatch(setIsEditDispatch(true))
+    navigation.goBack()
   }
 
   return (
@@ -148,7 +186,7 @@ function ChooseLocationScreen ({
         <Loader show={is_loading}/>
         {
           current_location_reducer.place_id || destination_location_reducer.place_id ?
-            <View style={{width: '100%', paddingHorizontal: 15, paddingTop: 20, position: 'absolute'}}>
+            <View style={{width: '100%', paddingHorizontal: 15, paddingTop: 20}}>
               <View style={{width: '100%', height: 80, flexDirection: 'row', paddingHorizontal: 15, backgroundColor: 'white', padding: 15, borderRadius: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.8, shadowRadius: 2, elevation: 5}}>
                 <View style={{width: 35}}>
                   <View style={{flex: 1, justifyContent: 'center'}}>
@@ -180,7 +218,7 @@ function ChooseLocationScreen ({
                     <Text numberOfLines={1}>{destination_location_reducer.name}</Text>
                   </View>
                 </View>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={{width: 80, justifyContent: 'center', alignItems: 'center'}}>
+                <TouchableOpacity onPress={() => _handleEditDirection()} style={{width: 80, justifyContent: 'center', alignItems: 'center'}}>
                   <View style={{borderWidth: 2, borderColor: MAIN_COLOR, borderRadius: 15}}>
                     <Text style={{fontSize: 17, color: MAIN_COLOR, fontWeight: 'bold', paddingHorizontal: 20, paddingVertical: 5}}>
                       Edit
@@ -201,9 +239,13 @@ function ChooseLocationScreen ({
             onRegionChangeComplete={region => {
               console.log('dddddd', region);
 
+              // prevent maps rendering multiple times
               if(region.latitude.toFixed(6) === init_region.latitude.toFixed(6)
                 && region.longitude.toFixed(6) === init_region.longitude.toFixed(6)){
                   return;
+              }
+              if (current_location_reducer.place_id || destination_location_reducer.place_id) {
+                return
               }
               setInitRegion({
                 ...init_region,
@@ -223,7 +265,46 @@ function ChooseLocationScreen ({
               _handleGetGeocodeAPI(region.latitude, region.longitude);
             }}
           >
-            <Marker coordinate={init_point} />
+            {
+              current_location_reducer.place_id || destination_location_reducer.place_id ?
+                <View>
+                  {
+                    [
+                      {
+                        id: 1,
+                        name: current_location_reducer.name,
+                        image: require('../assets/images/icons/Gojek/ChooseLocation/current.png'),
+                        latitude: current_location_reducer.geometry.location.lat,
+                        longitude: current_location_reducer.geometry.location.lng,
+                      },
+                      {
+                        id: 2,
+                        name: destination_location_reducer.name,
+                        image: require('../assets/images/icons/Gojek/ChooseLocation/destination.png'),
+                        latitude: destination_location_reducer.geometry.location.lat,
+                        longitude: destination_location_reducer.geometry.location.lng,
+                      },
+                    ].map(item => (
+                      <Marker key={item.id} coordinate={{latitude: item.latitude, longitude: item.longitude}} />
+                    ))
+                  }
+                  <Polyline
+                    coordinates={direction}
+                    strokeColor={MAIN_COLOR}
+                    strokeColors={[
+                      '#7F0000',
+                      '#00000000', // no color, creates a "long" gradient between the previous and next coordinate
+                      '#B24112',
+                      '#E5845C',
+                      '#238C23',
+                      '#7F0000'
+                    ]}
+                    strokeWidth={7}
+                  />
+                </View>
+              :
+                <Marker coordinate={init_point} />
+            }
           </MapView>
         </View>
         {
@@ -386,4 +467,5 @@ export default connect(state => ({
   current_location_reducer: state.destination_all_reducer.current_location_reducer,
   destination_location_reducer: state.destination_all_reducer.destination_location_reducer,
   choose_ride_type_reducer: state.choose_data_all_reducer.choose_ride_type_reducer,
+  is_edit_reducer: state.choose_location_all_reducer.is_edit_reducer,
 }))(ChooseLocationScreen);

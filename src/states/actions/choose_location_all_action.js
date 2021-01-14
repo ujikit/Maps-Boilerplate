@@ -4,4 +4,10 @@ const currentLocationIsTypingDispatch = (payload) => {
   };
 };
 
-export {currentLocationIsTypingDispatch};
+const setIsEditDispatch = (payload) => {
+  return function (dispatch) {
+    return dispatch({type: 'SET_IS_EDIT', payload: payload});
+  };
+};
+
+export {currentLocationIsTypingDispatch, setIsEditDispatch};
