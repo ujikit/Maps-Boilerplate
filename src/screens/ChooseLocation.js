@@ -191,7 +191,7 @@ function ChooseLocationScreen ({
         <Loader show={is_loading}/>
         {
           current_location_reducer.place_id || destination_location_reducer.place_id ?
-            <View style={{width: '100%', paddingHorizontal: 15, paddingTop: 20, position: 'absolute'}}>
+            <View style={{width: '100%', paddingHorizontal: 15, paddingTop: 20}}>
               <View style={{width: '100%', height: 80, flexDirection: 'row', paddingHorizontal: 15, backgroundColor: 'white', padding: 15, borderRadius: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.8, shadowRadius: 2, elevation: 5}}>
                 <View style={{width: 35}}>
                   <View style={{flex: 1, justifyContent: 'center'}}>
