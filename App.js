@@ -8,6 +8,7 @@ import {Provider} from 'react-redux';
 import {Root, Container} from 'native-base';
 
 // screens
+import SplashScreen from './src/screens/SplashScreen';
 import Home from './src/screens/Home';
 import Destination from './src/screens/Destination';
 import ChooseLocation from './src/screens/ChooseLocation';
@@ -28,7 +29,14 @@ function App() {
             barStyle="dark-content"
           />
           <NavigationContainer>
-            <Stack.Navigator initialRouteName="Direction">
+            <Stack.Navigator initialRouteName="SplashScreen">
+              <Stack.Screen
+                name="SplashScreen"
+                component={SplashScreen}
+                options={{
+                  headerShown: false
+                }}
+              />
               <Stack.Screen
                 name="Home"
                 component={Home}

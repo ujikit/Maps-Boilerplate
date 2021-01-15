@@ -159,11 +159,20 @@ function DestinationScreen ({
         <View style={{marginTop: 20}}>
           <Line height={2} margin_left={0}/>
         </View>
-        <View style={{flex: 1, marginTop: current_location || destination_location || location_found.length ? 0 : 20, paddingHorizontal: location_found.length ? 0 : PADDING_HORIZONTAL}}>
+        <View style={{flex: 1, paddingHorizontal: location_found.length ? 0 : PADDING_HORIZONTAL}}>
           {
+            current_location.split("").length <= 1 && destination_location.split("").length <= 1 ?
+              <View style={{alignSelf: 'center', marginTop: 15}}>
+                <Image
+                  resizeMode="stretch"
+                  style={{width: 300, height: 60}}
+                  source={require('../assets/images/icons/Gojek/order-gojek-now.jpg')}
+                />
+              </View>
+            :
             is_fetching_location ?
-              <View style={{width: '100%', alignSelf: 'center'}}>
-                <View style={{width: '100%', paddingTop: 20}}>
+              <View style={{width: '100%', alignSelf: 'center', marginTop: 20}}>
+                <View style={{width: '100%'}}>
                   <Placeholder
                     Animation={Shine}
                     Left={PlaceholderMedia}
@@ -209,16 +218,7 @@ function DestinationScreen ({
                     }}
                   />)
                 :
-                  !current_location && !destination_location &&
-                    (
-                      <View style={{alignSelf: 'center'}}>
-                        <Image
-                          resizeMode="stretch"
-                          style={{width: 300, height: 60}}
-                          source={require('../assets/images/icons/Gojek/order-gojek-now.png')}
-                        />
-                      </View>
-                    )
+                  null
           }
         </View>
       </View>
